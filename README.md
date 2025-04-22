@@ -1,2 +1,2 @@
-# SC2002BTOMS
+# SC2002 BTO Management System
 SC2002 AY24/25 Sem 2 BTOMS
