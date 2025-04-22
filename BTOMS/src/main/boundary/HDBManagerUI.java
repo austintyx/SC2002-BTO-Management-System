@@ -314,32 +314,44 @@ public class HDBManagerUI implements PasswordChange{
     }
 
     private Date updateDate(String dateType, Date currentDate) {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-    dateFormat.setLenient(false); // Prevent ambiguous dates like 35/13/2025
-    
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false);
+        
         while (true) {
-            System.out.print(dateType + " Date (dd/MM/yyyy) [" + dateFormat.format(currentDate) + "]: ");
+            System.out.print(dateType + " Date (dd/MM/yyyy) [" + dateFormat.format(currentDate) + "] or 0 to keep: ");
             String dateStr = scanner.nextLine().trim();
             
-            if (dateStr.isEmpty()) {
-                return null; // Keep existing date
+            // Allow keeping current date
+            if (dateStr.equals("0") || dateStr.isEmpty()) {
+                return null;
+            }
+            
+            // Regex check for basic format validation
+            if (!dateStr.matches("^\\d{2}/\\d{2}/\\d{4}$")) {
+                System.out.println("""
+                    Invalid format!
+                    """);
+                continue;
             }
             
             try {
                 Date parsedDate = dateFormat.parse(dateStr);
                 
-                // Additional business logic checks
-                if (dateType.equals("Closing") && parsedDate.before(currentDate)) {
-                    System.out.println("Closing date cannot be before current date!");
+                // Business logic checks
+                if (dateType.equals("Closing") && parsedDate.before(new Date())) {
+                    System.out.println("Closing date cannot be in the past!");
                     continue;
                 }
                 
                 return parsedDate;
             } catch (ParseException e) {
-                System.out.println("Invalid date format! Please use dd/MM/yyyy.");
+                System.out.println("""
+                    Invalid date!
+                    """);
             }
         }
     }
+    
 
     private Integer inputInteger(String prompt, int currentValue) {
         Scanner scanner = new Scanner(System.in);
