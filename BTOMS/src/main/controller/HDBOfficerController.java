@@ -72,6 +72,18 @@ public class HDBOfficerController {
         return applicationRepository.update(application) && projectRepository.update(project);
     }
 
+    /**
+     * Generates a formatted receipt for a flat selection based on the application details.
+     * <p>
+     * The receipt includes the applicant's ID, application ID, project name, selected flat type,
+     * and the current booking date and time.
+     * </p>
+     *
+     * @param applicationId the unique identifier of the application
+     * @param projectName   the name of the project for which the flat is booked
+     * @param flatType      the type of flat selected by the applicant
+     * @return a formatted string representing the flat selection receipt
+     */
     public String generateFlatSelectionReceipt(String applicationId, String projectName, String flatType) {
     Application application = applicationRepository.findById(applicationId);
     

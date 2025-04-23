@@ -118,65 +118,106 @@ public class HDBManagerController {
         handleFlatTypeChanges(originalFlatTypes, project);
     }
 
-    return success;
-}
+        return success;
+    }
 
-// New helper methods
-private void handleNeighborhoodUpdate(Project project, Object value) {
-    if (value instanceof String) {
-        try {
-            project.setNeighborhood(Neighborhood.fromString((String) value));
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid neighborhood. Update skipped.");
+    /**
+     * Handles neighborhood updates for a project, accepting both String and Neighborhood values.
+     * Silently skips invalid neighborhood values and preserves the existing value.
+     * 
+     * @param project The project to update
+     * @param value The new neighborhood value (String or Neighborhood enum)
+     */
+    private void handleNeighborhoodUpdate(Project project, Object value) {
+        if (value instanceof String) {
+            try {
+                project.setNeighborhood(Neighborhood.fromString((String) value));
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid neighborhood. Update skipped.");
+            }
+        } else if (value instanceof Neighborhood) {
+            project.setNeighborhood((Neighborhood) value);
         }
-    } else if (value instanceof Neighborhood) {
-        project.setNeighborhood((Neighborhood) value);
     }
-}
 
-@SuppressWarnings("unchecked")
-private void updateFlatTypes(Project project, Object value) {
-    Map<String, Integer> flatTypes = (Map<String, Integer>) value;
-    project.setFlatTypes(flatTypes);
-    
-    // Maintain remaining flats consistency
-    Map<String, Integer> remainingFlats = project.getRemainingFlats();
-    flatTypes.forEach((type, units) -> 
-        remainingFlats.putIfAbsent(type, units)
-    );
-}
-
-@SuppressWarnings("unchecked")
-private void updateFlatPrices(Project project, Object value) {
-    Map<String, Integer> flatPrices = (Map<String, Integer>) value;
-    project.setFlatPrices(flatPrices);
-}
-
-private void handleClosingDate(Project project, Date newClosing) {
-    if (newClosing.after(project.getOpeningDate())) {
-        project.setClosingDate(newClosing);
-    } else {
-        System.out.println("Closing date update skipped - must be after opening date");
-    }
-}
-
-private void handleProjectRename(String originalName, Project updatedProject) {
-    if (!originalName.equals(updatedProject.getProjectName())) {
-        List<Application> applications = applicationRepository.findByProject(originalName);
-        applications.forEach(app -> {
-            app.setProjectName(updatedProject.getProjectName());
-            applicationRepository.update(app);
-        });
-    }
-}
-
-private void handleFlatTypeChanges(Map<String, Integer> originalTypes, Project updatedProject) {
-    updatedProject.getFlatTypes().keySet().stream()
-        .filter(type -> !originalTypes.containsKey(type))
-        .forEach(type -> 
-            updatedProject.getRemainingFlats().put(type, updatedProject.getFlatTypes().get(type))
+    /**
+     * Updates flat types configuration and maintains consistency in remaining flats inventory.
+     * Performs an unchecked cast to Map<String, Integer>. New flat types are initialized with full capacity.
+     * 
+     * @param project The project being modified
+     * @param value The new flat type configuration map
+     */
+    @SuppressWarnings("unchecked")
+    private void updateFlatTypes(Project project, Object value) {
+        Map<String, Integer> flatTypes = (Map<String, Integer>) value;
+        project.setFlatTypes(flatTypes);
+        
+        // Maintain remaining flats consistency
+        Map<String, Integer> remainingFlats = project.getRemainingFlats();
+        flatTypes.forEach((type, units) -> 
+            remainingFlats.putIfAbsent(type, units)
         );
-}
+    }
+
+    /**
+     * Updates flat pricing configuration with validation of map structure.
+     * Performs an unchecked cast to Map<String, Integer>.
+     * 
+     * @param project The project being modified
+     * @param value The new price map containing flat type-price pairs
+     */
+    @SuppressWarnings("unchecked")
+    private void updateFlatPrices(Project project, Object value) {
+        Map<String, Integer> flatPrices = (Map<String, Integer>) value;
+        project.setFlatPrices(flatPrices);
+    }
+
+    /**
+     * Validates and applies closing date updates ensuring logical date ordering.
+     * Maintains business rule that closing date must be after opening date.
+     * 
+     * @param project The project being modified
+     * @param newClosing The proposed new closing date
+     */
+    private void handleClosingDate(Project project, Date newClosing) {
+        if (newClosing.after(project.getOpeningDate())) {
+            project.setClosingDate(newClosing);
+        } else {
+            System.out.println("Closing date update skipped - must be after opening date");
+        }
+    }
+
+    /**
+     * Handles project name changes by updating all associated applications.
+     * Performs bulk update of applications through the application repository.
+     * 
+     * @param originalName The original project name before rename
+     * @param updatedProject The project with new name configuration
+     */
+    private void handleProjectRename(String originalName, Project updatedProject) {
+        if (!originalName.equals(updatedProject.getProjectName())) {
+            List<Application> applications = applicationRepository.findByProject(originalName);
+            applications.forEach(app -> {
+                app.setProjectName(updatedProject.getProjectName());
+                applicationRepository.update(app);
+            });
+        }
+    }
+
+    /**
+     * Synchronizes remaining flats inventory when new flat types are added.
+     * Preserves existing remaining counts for existing types while initializing new types.
+     * 
+     * @param originalTypes The original flat type configuration before changes
+     * @param updatedProject The project with updated flat type configuration
+     */
+    private void handleFlatTypeChanges(Map<String, Integer> originalTypes, Project updatedProject) {
+        updatedProject.getFlatTypes().keySet().stream()
+            .filter(type -> !originalTypes.containsKey(type))
+            .forEach(type -> 
+                updatedProject.getRemainingFlats().put(type, updatedProject.getFlatTypes().get(type))
+            );
+    }
 
     
 

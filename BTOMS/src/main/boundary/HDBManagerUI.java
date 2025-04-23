@@ -348,6 +348,18 @@ public class HDBManagerUI implements PasswordChanger{
         return updates;
     }
 
+    /**
+     * Prompts the user to update a date value with input validation.
+     * <p>
+     * The user is shown the current date and can enter a new date in the format "dd/MM/yyyy".
+     * If the user enters an empty string, the original date is kept.
+     * The method validates the input format and, for "Closing" dates, ensures the new date is not in the past.
+     * </p>
+     *
+     * @param dateType     the type of date being updated (e.g., "Opening", "Closing")
+     * @param currentDate  the current date value to display and use as default
+     * @return the updated date if provided and valid; otherwise, returns the original currentDate
+     */
     private Date updateDate(String dateType, Date currentDate) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateFormat.setLenient(false);
@@ -383,7 +395,18 @@ public class HDBManagerUI implements PasswordChanger{
         }
     }
     
-
+    /**
+     * Prompts the user to input an integer value with input validation.
+     * <p>
+     * The user is shown a prompt and can enter a new integer value.
+     * If the user enters an empty string, {@code null} is returned to indicate the current value should be kept.
+     * The method validates the input and displays an error message for invalid numbers.
+     * </p>
+     *
+     * @param prompt        the prompt message to display to the user
+     * @param currentValue  the current integer value to use as default if input is empty
+     * @return the entered integer value, or {@code null} if the user input is empty
+     */
     private Integer inputInteger(String prompt, int currentValue) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -671,6 +694,16 @@ public class HDBManagerUI implements PasswordChanger{
         ConsoleUtils.pressEnterToContinue();
     }
 
+    /**
+     * Initiates the password change process for the specified user.
+     * <p>
+     * This method delegates the password change workflow to the default implementation
+     * provided by the {@link PasswordChanger} interface, utilizing the configured
+     * {@code passwordService} and {@code passwordUI} components for validation and user interaction.
+     * </p>
+     *
+     * @param user the {@link User} whose password is to be changed
+     */
     public void changePassword(User user) {
         PasswordChanger.super.changePassword(user, passwordService, passwordUI);
     }

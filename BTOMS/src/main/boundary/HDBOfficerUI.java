@@ -599,6 +599,16 @@ public class HDBOfficerUI implements PasswordChanger,UserLookupService{
         return false;
     }
 
+    /**
+     * Initiates the password change process for the specified user.
+     * <p>
+     * This method delegates the password change workflow to the default implementation
+     * provided by the {@link PasswordChanger} interface, utilizing the configured
+     * {@code passwordService} and {@code passwordUI} components for validation and user interaction.
+     * </p>
+     *
+     * @param user the {@link User} whose password is to be changed
+     */
     public void changePassword(User user) {
         PasswordChanger.super.changePassword(user, passwordService, passwordUI);
     }

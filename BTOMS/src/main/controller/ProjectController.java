@@ -2,7 +2,6 @@ package main.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,12 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import main.model.project.Project;
-import main.model.project.Neighborhood;
-import main.model.user.HDBManager;
 import main.model.user.HDBOfficer;
 import main.model.user.User;
 import main.model.application.Application;
-import main.model.enquiry.Enquiry;
 import main.model.application.ApplicationStatus;
 import main.repository.ApplicationRepository;
 import main.repository.EnquiryRepository;
@@ -137,29 +133,6 @@ public List<Project> getHandlingProjects(String officerNRIC) {
     return result;
 }
 
-
-
-    /**
-     * Checks if a manager is handling another project during the specified period.
-     * @param managerNRIC Manager's NRIC
-     * @param startDate Start date
-     * @param endDate End date
-     * @return true if manager is handling another project in the period, false otherwise
-     */
-    private boolean isManagerHandlingProjectDuringPeriod(String managerNRIC,
-                                                        Date startDate, Date endDate) {
-        List<Project> projects = getProjectsByManager(managerNRIC);
-
-        for (Project project : projects) {
-            boolean startsBeforeEnd = startDate.before(project.getClosingDate());
-            boolean endsAfterStart = endDate.after(project.getOpeningDate());
-
-            if (startsBeforeEnd && endsAfterStart) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Gets projects filtered by various criteria.
