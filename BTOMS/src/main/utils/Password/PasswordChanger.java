@@ -2,8 +2,35 @@ package main.utils.Password;
 
 import main.model.user.User;
 
-// PasswordChanger.java
+/**
+ * Interface defining the contract for password change functionality.
+ * <p>
+ * Provides a default implementation for changing a user's password, including user interaction,
+ * password policy validation, and confirmation. The interface expects implementations to provide
+ * a {@link PasswordService} for business logic and a {@link PasswordUI} for user interaction.
+ * </p>
+ */
 public interface PasswordChanger {
+
+    /**
+     * Initiates the password change process for the specified user.
+     * <p>
+     * The process includes:
+     * <ul>
+     *   <li>Prompting the user for their current password and verifying it</li>
+     *   <li>Displaying password policy requirements</li>
+     *   <li>Prompting for a new password and confirmation</li>
+     *   <li>Validating the new password against the policy</li>
+     *   <li>Attempting to update the password via the provided {@link PasswordService}</li>
+     *   <li>Providing success or error feedback via the {@link PasswordUI}</li>
+     * </ul>
+     * If the user cancels at any stage, the process is aborted.
+     * </p>
+     *
+     * @param currentUser      the {@link User} whose password is to be changed
+     * @param passwordService  the {@link PasswordService} handling password updates and validation
+     * @param ui               the {@link PasswordUI} for user interaction
+     */
     default void changePassword(User currentUser, PasswordService passwordService, PasswordUI ui) {
         ui.showMessage("\n===== Change Password =====");
         
@@ -40,6 +67,14 @@ public interface PasswordChanger {
         }
     }
 
+    /**
+     * Handles prompting the user for their current password and verifies it against the user's stored password.
+     * If the user cancels the operation (by entering an empty string), the process is aborted.
+     *
+     * @param ui   the {@link PasswordUI} for user interaction
+     * @param user the {@link User} whose password is to be verified
+     * @return the entered current password if correct, or {@code null} if cancelled
+     */
     private String handleCurrentPassword(PasswordUI ui, User user) {
         while (true) {
             String input = ui.readCurrentPassword();
@@ -54,6 +89,15 @@ public interface PasswordChanger {
         }
     }
 
+    /**
+     * Prompts the user for a new password, displays password policy requirements,
+     * and validates the new password against the provided policy.
+     * If the user cancels the operation (by entering an empty string), the process is aborted.
+     *
+     * @param ui     the {@link PasswordUI} for user interaction
+     * @param policy the {@link PasswordPolicy} for validation
+     * @return the valid new password entered by the user, or {@code null} if cancelled
+     */
     private String handleNewPassword(PasswordUI ui, PasswordPolicy policy) {
         while (true) {
             ui.showMessage(policy.getRequirements());
