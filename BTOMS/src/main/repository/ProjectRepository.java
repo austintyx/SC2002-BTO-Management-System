@@ -1,7 +1,8 @@
 package main.repository;
 
 import main.model.project.Project;
-import main.utils.ProjectLoader;
+import main.utils.Loader.ProjectLoader;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
